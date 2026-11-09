@@ -1,6 +1,34 @@
-@RaceDay.Api_HostAddress = http://localhost:5166
+@rootURL = http://localhost:5166
 
-GET {{RaceDay.Api_HostAddress}}/weatherforecast/
+GET {{rootURL}}/weatherforecast/
 Accept: application/json
 
 ###
+GET {{rootURL}}/api/Organizer 
+Accecpt: application/json
+
+###
+GET {{rootURL}}/api/Organizer/2
+Accecpt: application/json
+
+###
+POST {{rootURL}}/api/Organizer
+Content-Type: application/json
+{
+    "OrganizerId": 1,
+    "OrganizationName": "ANC Marathon Association",
+    "Email": "ComradesMA@gmail.com'",
+    "PasswordHash": "Password123",
+    "PhoneNumber": "0826312561"
+}
+
+###
+PUT {{rootURL}}/api/Organizer/1
+Content-Type: application/json
+{
+    "OrganizerId": 1,
+    "OrganizationName": "Da Marathon Association",
+    "Email": "ComradesMA@gmail.com'",
+    "PasswordHash": "Password123",
+    "PhoneNumber": "0826315551"
+}
