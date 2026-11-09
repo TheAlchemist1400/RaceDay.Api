@@ -12,7 +12,7 @@ namespace RaceDay.Api.Controllers
             {
                 ParticipantId = 1,
                 Name = "Amando",
-                Surname = "Moabi",
+                Lastname = "Moabi",
                 Email = "ComradesMA@gmail.com'",
                 PasswordHash = "Password123",
                 PhoneNumber = "0826312561"
@@ -22,7 +22,7 @@ namespace RaceDay.Api.Controllers
             {
                 ParticipantId = 2,
                 Name = "Thabo",
-                Surname = "Sky",
+                Lastname = "Sky",
                 Email = "CapeTownCTT@gmail.com",
                 PasswordHash = "Password321",
                 PhoneNumber = "0824562354"

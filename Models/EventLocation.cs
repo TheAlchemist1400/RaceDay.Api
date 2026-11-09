@@ -10,8 +10,11 @@ namespace RaceDay.Api.Models
         [Required, StringLength(50)]
         public string City { get; set; } = string.Empty;
 
+        [Required, StringLength(50)]
+        public string Province { get; set; } = string.Empty;
+
         [Required, StringLength(100)]
-        public string Address { get; set; } = string.Empty;
+        public string Venue { get; set; } = string.Empty;
 
     }
 }

@@ -14,9 +14,6 @@ namespace RaceDay.Api.Models
         [Required]
         public DateOnly EventDate { get; set; }
 
-        [Required, StringLength(50)]
-        public string Activity { get; set; } = string.Empty;
-
         [Range(1, int.MaxValue)]
         public int MaxParticipants { get; set; }
 
