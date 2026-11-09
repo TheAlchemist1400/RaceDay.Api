@@ -1,242 +1,376 @@
-# RaceDay API – PROG6212 PoE Part 2 Presentation Script
-1. Introduction
+# RaceDay API – Event Management System
 
-"Hello everyone, and welcome to my PROG6212 Portfolio of Evidence Part 2 presentation.
+!ASP.NET Core !Entity Framework Core !SQL Server !Status
 
-In this video, I will be demonstrating my RaceDay application, focusing on the backend RESTful API that I developed using ASP.NET Core, Entity Framework Core and Microsoft SQL Server.
+## Project Overview
 
-RaceDay is an event management system designed to allow event organisers to create and manage sporting events, while participants can register for events, select activities and view their results.
+RaceDay is an event management system developed for the PROG6212 Portfolio of Evidence (PoE) Part 2.
 
-I will explain the database structure, the models, authentication, session management, role-based access control, the API controllers and how I tested the endpoints using Swagger."
+The application provides a platform where Event Organisers can create and manage sporting events, while Participants can browse events, register for activities and view their results.
 
-2. Database design and models
+The backend was developed using ASP.NET Core Web API, Entity Framework Core and Microsoft SQL Server.
 
-"Before implementing the API, I worked on the database design.
+The API follows RESTful principles and implements authentication, session management and role-based access control to ensure that users can only perform actions permitted by their roles.
 
-The application uses Microsoft SQL Server as its database, and Entity Framework Core to communicate with the database.
+## Technologies Used
+C#
+ASP.NET Core Web API
+Entity Framework Core
+Microsoft SQL Server
+Swagger / OpenAPI
+Data Annotations
+ASP.NET Core Session Management
+GitHub Actions (Continuous Integration)
+Part 1: Design Corrections and Rationale
 
-I created separate models to represent the different entities in the system.
+The original RaceDay Part 1 submission was reviewed against the assessment feedback and the PROG6212 PoE Part 2 guide. The database design, ERD and API Endpoint Plan were corrected to improve consistency and support the required functionality.
 
-These include:
+## Changes made
+Completed the ERD: Added the Activity and Result entities so that the ERD represents the tables required by the database design.
+Clarified primary and foreign keys: Identified the primary keys, foreign keys and unique constraints for each entity, together with relationship cardinalities.
+Updated registration rules: The implemented design allows a Participant to register once per event, preventing duplicate registrations for the same event.
+Improved referential integrity: Added a composite relationship between Registration and Activity so that an activity must belong to the event being entered.
+Aligned API naming: Used activity-related controller functionality to manage event categories while retaining the Activity database entity.
+Clarified organiser permissions: Organisers may create, update and delete only events they manage, and may manage activities, enrolments and results only for those events.
+Corrected SQL Server compatibility: The database script uses Microsoft SQL Server-compatible syntax.
+Aligned the planning documents: The ERD, SQL script and API Endpoint Plan were checked against the implemented database structure and API functionality.
+Design decisions
 
-EventOrganizer
-Participant
-Event
-EventLocation
-Activity
-Registration
-Result
-RouteInfo
-Weather
+The database retains separate Participant and EventOrganizer account tables. This preserves the existing design while allowing the API to apply role-specific access controls.
 
-Each model represents a table in the database.
+Passwords are hashed by the application before being stored.
 
-For example, the Event model stores information such as the event name, date, maximum participants, organiser and location.
+The Activity entity represents the different race options or categories available within an event, such as 5km and 10km races.
 
-The Activity model represents the different activities participants can enter, such as a 5-kilometre or 10-kilometre race.
+These corrections are deliberate changes to the original Part 1 work. The updated documents serve as the specification for Part 2.
 
-The Registration model connects a participant to an event and the selected activity.
+## Part 2: API Implementation
+Database Models
 
-The Result model stores information such as finish time, finishing position and result status.
+The application uses the following nine models:
 
-I also used data annotations such as Required, StringLength and Range to validate the information being stored.
+Model	Description
+EventOrganizer	Stores organiser account information
+Participant	Stores participant account information
+Event	Stores sporting event information
+EventLocation	Stores event venue and location details
+Activity	Stores activities and race categories
+Registration	Connects participants to events and activities
+Result	Stores participant finishing results
+RouteInfo	Stores event route information
+Weather	Stores event weather information
+
+Entity Framework Core is used to manage database relationships, foreign keys, unique constraints and database operations.
+
+## Authentication and Session Management
+
+RaceDay supports two user roles:
+
+1. Participant
+
+Participants can:
+
+Register an account.
+Log in and log out.
+View and update their own profile.
+View available events.
+View event activities and categories.
+Register for events.
+View their own registrations.
+View their personal results.
+View event locations, routes and weather information.
+
+2. Organiser
+
+Organisers can:
+
+Register an account.
+Log in and log out.
+View and update their own profile.
+Create sporting events.
+View their own events.
+Update and delete their own events.
+Manage event activities and categories.
+View registrations for their events.
+Update registration statuses.
+Record participant results.
+Manage event locations, routes and weather information.
+Password Security
+
+Passwords are never stored as plain text.
+
+The API uses Microsoft's PasswordHasher to hash passwords before saving them to SQL Server.
+
+During login, the supplied password is verified against the stored password hash.
+
+Session Management
+
+ASP.NET Core session management is used to identify authenticated users.
+
+Two session values are maintained:
+
+UserId: Identifies the logged-in user.
+Role: Identifies whether the user is a Participant or Organiser.
+
+The session is cleared when the user logs out.
+
+Role-Based Access Control
+
+The API checks the authenticated user's role before allowing access to protected functionality.
+
+Organisers can only manage events and associated information belonging to them.
+
+Participants can only access and manage their own registrations and personal results.
+
+The API uses appropriate HTTP status codes, including:
+
+Status Code	Meaning
+200	OK
+201	Created
+400	Bad Request
+401	Unauthorized
+403	Forbidden
+404	Not Found
+409	Conflict
+API Controllers and Endpoints
+
+### 1. AuthController
+Method	Endpoint	Description
+POST	/api/auth/register	Register an account
+POST	/api/auth/login	Log in
+POST	/api/auth/logout	Log out
+### 2. ProfileController
+Method	Endpoint	Description
+GET	/api/profile/me	View own profile
+PUT	/api/profile/me	Update own profile
+### 3. EventsController
+Method	Endpoint	Description
+GET	/api/events	View all events
+GET	/api/events/{id}	View a specific event
+GET	/api/events/mine	View own events
+POST	/api/events	Create an event
+PUT	/api/events/{id}	Update an event
+DELETE	/api/events/{id}	Delete an event
+### 4. ActivitiesController
+Method	Endpoint	Description
+GET	/api/events/{eventId}/categories	View event categories
+POST	/api/events/{eventId}/categories	Create a category
+PUT	/api/categories/{id}	Update a category
+DELETE	/api/categories/{id}	Delete a category
+### 5. RegistrationsController
+Method	Endpoint	Description
+POST	/api/enrolments	Register for an event
+GET	/api/enrolments/mine	View own registrations
+GET	/api/enrolments/event/{eventId}	View event registrations
+PUT	/api/enrolments/{id}/status	Update registration status
+### 6. ResultsController
+Method	Endpoint	Description
+POST	/api/results	Record a participant result
+GET	/api/results/mine	View personal results
+GET	/api/results/event/{eventId}	View event results
+### 7. EventLocationsController
+Method	Endpoint	Description
+GET	/api/locations	View all locations
+GET	/api/locations/{id}	View a location
+POST	/api/locations	Create a location
+PUT	/api/locations/{id}	Update a location
+DELETE	/api/locations/{id}	Delete a location
+### 8. RouteInfoController
+Method	Endpoint	Description
+GET	/api/routes/event/{eventId}	View event route
+POST	/api/routes/event/{eventId}	Create event route
+PUT	/api/routes/{id}	Update event route
+DELETE	/api/routes/{id}	Delete event route
+### 9. WeatherController
+Method	Endpoint	Description
+GET	/api/weather/event/{eventId}	View event weather
+POST	/api/weather/event/{eventId}	Create weather information
+PUT	/api/weather/{id}	Update weather information
+DELETE	/api/weather/{id}	Delete weather information
+Installation and Setup
+Prerequisites
 
-In my DbContext, I configured relationships, foreign keys, unique constraints and decimal precision using Entity Framework Core.
+Before running the project, ensure that you have installed:
 
-For example, I made sure that an activity belongs to an event and that a registration cannot reference an activity belonging to a different event.
+Visual Studio 2022 or a compatible development environment.
+The .NET SDK version matching the project target framework.
+Microsoft SQL Server.
+SQL Server Management Studio (SSMS).
+Git.
+1. Clone the repository
 
-I also used DeleteBehavior.Restrict to protect related records from being accidentally deleted."
+Open a terminal and run:
 
-3. Authentication and registration
+bash
+git clone YOUR_GITHUB_REPOSITORY_URL
 
-"Next, I implemented authentication.
 
-RaceDay supports two account types: Participants and Organisers.
+Navigate to the API project directory:
 
-I created an AuthController with three main endpoints:
+bash
+cd RaceDay.Api
 
-POST api/auth/register
-POST api/auth/login
-POST api/auth/logout
+2. Configure the database connection
 
-During registration, the API receives the user's details and selected role.
+Open appsettings.json and configure the SQL Server connection string.
 
-It checks whether the email address already exists in either the Participant or EventOrganizer table.
+Example:
 
-The password is never stored as plain text.
+json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=YOUR_SERVER_NAME;Database=RaceDayDB;Trusted_Connection=True;TrustServerCertificate=True;"
+  }
+}
 
-Instead, I use Microsoft's PasswordHasher to generate a password hash before saving the account to SQL Server.
 
-During login, the API finds the account using the email address and verifies the supplied password against the stored hash.
+Replace YOUR_SERVER_NAME with your SQL Server instance name.
 
-If the credentials are correct, the user is logged in successfully."
+For local development, TrustServerCertificate=True can be used where appropriate. Use proper certificate validation in production.
 
-4. Session management
+3. Restore NuGet packages
 
-"After a successful login, I use ASP.NET Core session management to remember who is making requests to the API.
+Run:
 
-I store two important values in the session.
+bash
+dotnet restore
 
-The first is UserId, which identifies the logged-in user.
+4. Build the project
 
-The second is Role, which identifies whether the user is a Participant or an Organiser.
+Run:
 
-For example, a Participant might have UserId equal to 5 and Role equal to Participant.
+bash
+dotnet build
 
-This information allows the API to identify the user when they access protected endpoints.
+5. Update the database
 
-When the user logs out, the session is cleared, preventing them from accessing protected functionality using that session."
+If the project contains Entity Framework Core migrations, run:
 
-5. Role-based access control
+bash
+dotnet ef database update
 
-"An important part of RaceDay is role-based access control.
 
-Not every user should have permission to perform every action.
+If the EF Core CLI tool is not installed, install it using:
 
-Participants and Organisers have different responsibilities.
+bash
+dotnet tool install --global dotnet-ef
 
-Both roles can view available events and relevant event information.
 
-However, only Organisers can create events.
+If no migrations exist yet, create an initial migration before updating the database:
 
-An Organiser can also update or delete only the events that they own.
+bash
+dotnet ef migrations add InitialCreate
+dotnet ef database update
 
-Participants cannot create, update or delete events.
+6. Run the application
 
-Similarly, only Participants can register for events and view their personal registrations.
+Run:
 
-Organisers can view registrations belonging to their own events and update their registration statuses.
+bash
+dotnet run
 
-I implemented these checks inside the controllers by retrieving the UserId and Role from the session.
 
-I use HTTP status codes such as 401 Unauthorized when a user is not logged in and 403 Forbidden when a logged-in user does not have the required permissions."
+The API will start using the configured application URLs.
 
-6. Profile management
+7. Access Swagger
 
-"I also created a ProfileController.
+When running in Development mode, open the Swagger URL displayed in the terminal.
 
-This controller allows both Participants and Organisers to view and update their own profiles.
+Swagger provides an interactive interface for testing the API endpoints.
 
-It uses two endpoints:
+API Testing
 
-GET api/profile/me
-PUT api/profile/me
+Swagger was used to test the API functionality.
 
-An important security decision here is that I do not allow users to provide another user's ID to update their profile.
+## Testing included:
 
-Instead, the API retrieves the UserId from the session.
+Participant registration and login.
+Organiser registration and login.
+Profile retrieval and updates.
+Event creation and management.
+Activity and category management.
+Participant event registration.
+Registration status updates.
+Result recording and retrieval.
+Event location management.
+Route information management.
+Weather information management.
+Role-based access restrictions.
 
-This ensures that users can only manage their own account information."
+The tests also checked appropriate HTTP status codes and validation responses.
 
-7. Event management
+Continuous Integration
 
-"Next, I implemented the EventsController.
+A GitHub Actions Continuous Integration workflow is included in the repository.
 
-This controller manages the creation, viewing, updating and deletion of events.
+The workflow builds the application to check for compilation errors when changes are pushed to the repository.
 
-Both Participants and Organisers can view available events.
+The successful CI build is represented by the green status screenshot included below.
 
-However, only Organisers can create events.
+!Successful GitHub Actions CI build
 
-When an Organiser creates an event, the API automatically obtains the OrganizerId from the session rather than trusting an ID supplied by the frontend.
+YouTube Demonstration
 
-When updating or deleting an event, the API checks whether the logged-in Organiser owns that event.
+A video demonstration of the RaceDay API implementation is available below.
 
-This prevents one Organiser from modifying another Organiser's events."
+YouTube Video: [INSERT YOUR UNLISTED YOUTUBE VIDEO LINK HERE]
 
-8. Activity management
+## The demonstration covers:
 
-"I then created the ActivitiesController.
+Database models and relationships.
+Authentication and session management.
+Role-based access control.
+API controllers and endpoints.
+Swagger testing.
+Additional event functionality.
+Project Structure
+text
+RaceDay.Api/
+│
+├── Controllers/
+│   ├── AuthController.cs
+│   ├── ProfileController.cs
+│   ├── EventsController.cs
+│   ├── ActivitiesController.cs
+│   ├── RegistrationsController.cs
+│   ├── ResultsController.cs
+│   ├── EventLocationsController.cs
+│   ├── RouteInfoController.cs
+│   └── WeatherController.cs
+│
+├── Data/
+│   └── RaceDayDbContext.cs
+│
+├── Models/
+│   ├── Activity.cs
+│   ├── Event.cs
+│   ├── EventLocation.cs
+│   ├── EventOrganizer.cs
+│   ├── Participant.cs
+│   ├── Registration.cs
+│   ├── Result.cs
+│   ├── RouteInfo.cs
+│   └── Weather.cs
+│
+├── Migrations/
+│
+├── Properties/
+│
+├── appsettings.json
+├── Program.cs
+└── RaceDay.Api.csproj
 
-In my database design, I use the Activity model to represent the different categories or race options available within an event.
 
-For example, an event might offer a 5-kilometre race and a 10-kilometre race.
+## Conclusion
 
-Each activity stores its name, distance, entry fee, start time and maximum number of entrants.
+RaceDay demonstrates the implementation of a RESTful API for managing sporting events and participant registrations.
 
-Both roles can view activities.
+The project applies database design principles, Entity Framework Core relationships, password hashing, session management, role-based access control and RESTful API conventions.
 
-However, only the Organiser who owns the event can create, update or delete its activities."
+The additional location, route and weather functionality further extends the capabilities of the application.
 
-9. Participant registrations
+This project provided practical experience in backend development, database integration, API design, authentication and software testing.
 
-"The RegistrationsController handles event enrolments.
-
-When a Participant wants to enter an event, they select an event and one of its available activities.
-
-The API checks that the event exists and that the selected activity belongs to that event.
-
-It also checks whether the Participant has already registered for the event.
-
-I implemented checks for the maximum number of participants allowed in an event and the maximum number of entrants allowed in an activity.
-
-The API also generates a bib number for the registration.
-
-Participants can view their own registrations, while Organisers can view registrations for their own events and update registration statuses.
-
-Some of the registration statuses include Pending, Confirmed and Cancelled."
-
-10. Results management
-
-"After an event has taken place, the Organiser can record participant results using the ResultsController.
-
-The result contains the registration ID, finish time, finishing position and result status.
-
-Before recording a result, the API checks that the registration exists and that the logged-in Organiser owns the event.
-
-It also prevents duplicate results for the same registration.
-
-Participants can then retrieve their personal results, while Organisers can view results for their own events."
-
-11. Additional functionality
-
-"I also implemented three additional controllers using the remaining models in my database.
-
-The EventLocationsController manages event venues and locations.
-
-The RouteInfoController manages information about event routes, including the distance, start point, end point and route description.
-
-Finally, the WeatherController manages weather information associated with an event, including temperature, weather conditions and wind speed.
-
-These features extend the functionality of RaceDay beyond the core event registration requirements."
-
-12. API testing using Swagger
-
-"To test the API, I used Swagger.
-
-Swagger allowed me to send HTTP requests to my endpoints and inspect the responses.
-
-I tested registration and login for both Participants and Organisers.
-
-I also tested protected endpoints to make sure users could only perform actions permitted by their roles.
-
-For example, I tested that a Participant could not create an event and that an Organiser could not register as a Participant.
-
-I also tested event creation, activity creation, participant registration, registration status updates and result recording.
-
-I checked the HTTP status codes returned by the API, including 200, 201, 400, 401, 403, 404 and 409 where appropriate.
-
-This helped me verify that the API responds correctly to successful requests and invalid operations."
-
-13. Continuous Integration
-
-"I also included a Continuous Integration workflow in my project.
-
-The workflow automatically builds the application when changes are pushed to the repository.
-
-This helps identify build errors and ensures that the project can compile successfully.
-
-The successful workflow execution is represented by the green CI status displayed in my README."
-
-14. Conclusion
-
-"To conclude, I successfully developed the RaceDay RESTful API using ASP.NET Core, Entity Framework Core and Microsoft SQL Server.
-
-The application supports two different user roles, secure password hashing, session management, role-based access control, event management, activity management, participant registrations and results management.
-
-I also implemented additional functionality for event locations, routes and weather information.
-
-Through this project, I gained practical experience in developing RESTful APIs, working with relational databases, implementing authentication and authorisation, and testing API endpoints.
-
-Thank you for watching my presentation."
-=
+Module: PROG6212
+Assessment: Portfolio of Evidence Part 2
+Project: RaceDay API
