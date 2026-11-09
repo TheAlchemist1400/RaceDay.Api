@@ -21,7 +21,7 @@ namespace RaceDay.Api.Models
         public int BibNumber { get; set; }
 
         [Required, StringLength(20)]
-        public string RgistrationStatus { get; set; } = "Confirmed";
+        public string RegistrationStatus { get; set; } = "Confirmed";
 
         
         public Participant Participant { get; set; } = null!;

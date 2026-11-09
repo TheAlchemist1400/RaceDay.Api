@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace RaceDay.Api.Models
 {
-    public class Event : Controller
+    public class Event
     {
         [Key]
         public int EventId { get; set; }

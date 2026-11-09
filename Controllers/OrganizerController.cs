@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RaceDay.Api.Data;
 using RaceDay.Api.Models;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,39 +10,46 @@ namespace RaceDay.Api.Controllers
     [ApiController]
     public class OrganizerController : ControllerBase
     {
-        private static readonly List<EventOrganizer> Organizers = new List<EventOrganizer>
-        {
-            new EventOrganizer
-            {
-                OrganizerId = 1,
-                OrganizationName = "Comrades Marathon Association",
-                Email = "ComradesMA@gmail.com'",
-                PasswordHash = "Password123",
-                PhoneNumber = "0826312561"
-            },
+        //private static readonly List<EventOrganizer> Organizers = new List<EventOrganizer>
+        //{
+        //    new EventOrganizer
+        //    {
+        //        OrganizerId = 1,
+        //        OrganizationName = "Comrades Marathon Association",
+        //        Email = "ComradesMA@gmail.com'",
+        //        PasswordHash = "Password123",
+        //        PhoneNumber = "0826312561"
+        //    },
 
-            new EventOrganizer
-            {
-                OrganizerId = 2,
-                OrganizationName = "Cape Town Cycle Tour Trust",
-                Email = "CapeTownCTT@gmail.com",
-                PasswordHash = "Password321",
-                PhoneNumber = "0824562354"
-            }
-        };
+        //    new EventOrganizer
+        //    {
+        //        OrganizerId = 2,
+        //        OrganizationName = "Cape Town Cycle Tour Trust",
+        //        Email = "CapeTownCTT@gmail.com",
+        //        PasswordHash = "Password321",
+        //        PhoneNumber = "0824562354"
+        //    }
+        //};
+
+
+        private readonly RaceDayDbContext _context;
+        public OrganizerController(RaceDayDbContext context)
+        {
+            _context = context;
+        }
 
         // Returns All organizers
         [HttpGet]
-        public ActionResult<List<EventOrganizer>> GetOrganizer()
+        public async Task<ActionResult<List<EventOrganizer>>> GetOrganizer()
         {
-            return Ok(Organizers);
+            return Ok(await _context.EventOrganizers.ToListAsync());
         }
 
-        // Return an organizer
-        [HttpGet("{id}")]
-        public ActionResult<List<EventOrganizer>> GetOrganizerbyId(int id)
+        //Return an organizer
+       [HttpGet("{id}")]
+        public async Task<ActionResult<List<EventOrganizer>>> GetOrganizerbyId(int id)
         {
-            var EventOrganizer = Organizers.FirstOrDefault(Org => Org.OrganizerId == id);
+            var EventOrganizer = await _context.EventOrganizers.FindAsync(id);
 
             // Returns 404
             if (EventOrganizer == null) return NotFound();
@@ -50,21 +59,23 @@ namespace RaceDay.Api.Controllers
 
         // Creates an Organizer
         [HttpPost]
-        public ActionResult<EventOrganizer> addOrganizer(EventOrganizer newOrganizer)
+        public async Task<ActionResult<EventOrganizer>> addOrganizer(EventOrganizer newOrganizer)
         {
             // Rturns 400
             if (newOrganizer == null) return BadRequest();
 
             // Returns 201
-            Organizers.Add(newOrganizer);
+            _context.EventOrganizers.Add(newOrganizer);
+            await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetOrganizerbyId), new { id = newOrganizer.OrganizerId }, newOrganizer);
         }
 
         // Editsban Organizer
         [HttpPut("{id}")]
-        public ActionResult UpdateOrganizer(int id, EventOrganizer updatedOrganizer)
+        public async Task<ActionResult> UpdateOrganizer(int id, EventOrganizer updatedOrganizer)
         {
-            var EventOrganizer = Organizers.FirstOrDefault(Org => Org.OrganizerId == id);
+            var EventOrganizer = await _context.EventOrganizers.FindAsync(id);
 
             // Returns 404
             if (EventOrganizer == null) return NotFound();
@@ -74,21 +85,25 @@ namespace RaceDay.Api.Controllers
             EventOrganizer.PasswordHash = updatedOrganizer.PasswordHash;
             EventOrganizer.PhoneNumber = updatedOrganizer.PhoneNumber;
 
+            await _context.SaveChangesAsync();
+
             // Return 204
             return NoContent();
         }
 
         // Delete Organizer
         [HttpDelete("{id}")]
-        public ActionResult DeleteOrganizer(int id)
+        public async Task<ActionResult> DeleteOrganizer(int id)
         {
-            var EventOrganizer = Organizers.FirstOrDefault(Org => Org.OrganizerId == id);
+            var EventOrganizer = await _context.EventOrganizers.FindAsync(id);
 
             // Returns 404
             if (EventOrganizer == null) return NotFound();
 
-            Organizers.Remove(EventOrganizer);
+            _context.EventOrganizers.Remove(EventOrganizer);
+
+            await _context.SaveChangesAsync();
             return NoContent();
-       }
+        }
     }
 }

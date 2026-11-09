@@ -15,7 +15,6 @@ Accecpt: application/json
 POST {{rootURL}}/api/Organizer
 Content-Type: application/json
 {
-    "OrganizerId": 1,
     "OrganizationName": "ANC Marathon Association",
     "Email": "ComradesMA@gmail.com'",
     "PasswordHash": "Password123",
@@ -26,7 +25,6 @@ Content-Type: application/json
 PUT {{rootURL}}/api/Organizer/1
 Content-Type: application/json
 {
-    "OrganizerId": 1,
     "OrganizationName": "Da Marathon Association",
     "Email": "ComradesMA@gmail.com'",
     "PasswordHash": "Password123",
