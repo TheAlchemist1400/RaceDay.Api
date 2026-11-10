@@ -3,6 +3,7 @@
 GET {{rootURL}}/weatherforecast/
 Accept: application/json
 
+============================ ORGANIZER ============================
 ###
 GET {{rootURL}}/api/Organizer 
 Accecpt: application/json
@@ -30,3 +31,36 @@ Content-Type: application/json
     "PasswordHash": "Password123",
     "PhoneNumber": "0826315551"
 }
+
+============================ PARTICIPANT ============================
+
+###
+GET {{rootURL}}/api/Participant 
+Accecpt: application/json
+
+###
+GET {{rootURL}}/api/Participant/1
+Accecpt: application/json
+
+###
+POST {{rootURL}}/api/Participant
+Content-Type: application/json
+{
+    "Name": "Naledi",
+    "Lastname": "Dlamini",
+    "Email": "DlaminiNalza@gmail.com",
+    "PasswordHash": "Password642",
+    "PhoneNumber": "0734567890"
+}
+
+###
+PUT {{rootURL}}/api/Participant/1
+Content-Type: application/json
+{
+    "Name" = "Amando",
+    "Lastname" = "Moabi",
+    "Email" = "ComradesMA@gmail.com'",
+    "PasswordHash" = "Password123",
+    "PhoneNumber" = "0826312561"
+}
+
