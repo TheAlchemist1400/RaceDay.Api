@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using RaceDay.Api.Data;
 using RaceDay.Api.Models;
 using System.ComponentModel.DataAnnotations;
+using RaceDay.Contracts;
 using System.Data;
 using System.Diagnostics;
 using System.Net;
@@ -43,7 +44,7 @@ namespace RaceDay.Api.Controllers
         // POST: api/auth/register
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register(RaceDay.Contracts.RegisterRequest request)
         {
             // Check if email already exists
             bool participantExists = await _context.Participants.AnyAsync(p => p.Email == request.Email);
@@ -122,7 +123,7 @@ namespace RaceDay.Api.Controllers
         // POST: api/auth/login
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login(RaceDay.Contracts.LoginRequest request)
         {
             // Find participant and organizer by email
             var participant = await _context.Participants
@@ -154,10 +155,10 @@ namespace RaceDay.Api.Controllers
 
                 return Ok(new
                 {
-                    message = "Login successful.",
+                    Message = "Login successful.",
                     UserId = participant.ParticipantId,
-                    participant.Name,
-                    participant.Email,
+                    DisplayName = participant.Name,
+                    Email = participant.Email,
                     Role = "Participant"
                 });
             }
@@ -183,10 +184,10 @@ namespace RaceDay.Api.Controllers
 
                 return Ok(new
                 {
-                    message = "Login successful.",
+                    Message = "Login successful.",
                     UserId = organizer.OrganizerId,
-                    organizer.OrganizationName,
-                    organizer.Email,
+                    DisplayName = organizer.OrganizationName,
+                    Email = organizer.Email,
                     Role = "Organizer"
                 });
             }
@@ -208,36 +209,5 @@ namespace RaceDay.Api.Controllers
                 message = "Logout successful."
             });
         }
-
-        // ========================================== REQUEST MODELS ==========================================
-
-        public class RegisterRequest
-        {
-            [Required, EmailAddress]
-            public string Email { get; set; } = string.Empty;
-
-            [Required, MinLength(8)]
-            public string Password { get; set; } = string.Empty;
-
-            [Required]
-            public string Role { get; set; } = string.Empty;
-
-            public string? Name { get; set; }
-
-            public string? Lastname { get; set; }
-
-            public string? OrganizationName { get; set; }
-
-            public string? PhoneNumber { get; set; }
-        }
-
-        public class LoginRequest
-        {
-            [Required, EmailAddress]
-            public string Email { get; set; } = string.Empty;
-
-            [Required]
-            public string Password { get; set; } = string.Empty;
-        }
     }
- }
+}
