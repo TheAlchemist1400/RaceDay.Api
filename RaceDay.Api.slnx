@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="../RaceDay.Api.Tests/RaceDay.Api.Tests.csproj" Id="e0391253-e7da-436f-bb59-96fd3926662b" />
   <Project Path="../RaceDay.Contracts/RaceDay.Contracts.csproj" Id="c03cc7cc-b07d-4887-8ff0-cd3ef424da77" />
+  <Project Path="../RaceDay.Mvc/RaceDay.Mvc.csproj" Id="d588ea23-ef7b-4bb9-993b-cf825370aff7" />
   <Project Path="RaceDay.Api.csproj" />
 </Solution>
