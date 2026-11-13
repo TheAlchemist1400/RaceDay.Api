@@ -21,5 +21,9 @@ namespace RaceDay.Api.Models
 
         [Required, StringLength(15)]
         public string PhoneNumber { get; set; } = string.Empty;
+
+        // Nullable because existing Participants have no profile picture.
+        [StringLength(2048)]
+        public string? ProfileImageUrl { get; set; }
     }
 }

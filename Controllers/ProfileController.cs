@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using RaceDay.Api.Data;
 using RaceDay.Api.Models;
+using RaceDay.Api.Services;
 
 namespace RaceDay.Api.Controllers
 {
@@ -12,10 +13,17 @@ namespace RaceDay.Api.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly RaceDayDbContext _context;
+        private readonly BlobStorageService _blobStorageService;
+        private readonly IConfiguration _configuration;
 
-        public ProfileController(RaceDayDbContext context)
+        public ProfileController(
+            RaceDayDbContext context,
+            BlobStorageService blobStorageService,
+            IConfiguration configuration)
         {
             _context = context;
+            _blobStorageService = blobStorageService;
+            _configuration = configuration;
         }
 
         // GET: api/profile/me
@@ -42,6 +50,7 @@ namespace RaceDay.Api.Controllers
                     participant.Lastname,
                     participant.Email,
                     participant.PhoneNumber,
+                    participant.ProfileImageUrl,
                     Role = "Participant"
                 });
             }
@@ -140,6 +149,72 @@ namespace RaceDay.Api.Controllers
 
             return Forbid();
         }
+
+
+        // POST: api/profile/upload-image
+        [HttpPost("upload-image")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(5 * 1024 * 1024 + 65536)]
+        public async Task<IActionResult> UploadProfileImage(IFormFile file)
+        {
+            // STEP 1: Check the API session.
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            string? role = HttpContext.Session.GetString("Role");
+
+            if (userId == null || role == null)
+                return Unauthorized("Please log in first.");
+
+            // STEP 2: Only Participants can upload profile pictures.
+            if (role != "Participant")
+                return StatusCode(403, "Only Participants can upload profile pictures.");
+
+            // STEP 3: Retrieve the Participant.
+            var participant = await _context.Participants.FindAsync(
+                userId.Value
+            );
+
+            if (participant == null)
+                return NotFound("Participant not found.");
+
+            // STEP 4: Get the configured Azure container.
+            string? containerName =
+                _configuration["AzureBlobStorage:ProfileImagesContainer"];
+
+            if (string.IsNullOrWhiteSpace(containerName))
+            {
+                return StatusCode(
+                    500,
+                    "Profile image container is not configured."
+                );
+            }
+
+            try
+            {
+                // STEP 5: Upload image to Azure.
+                string imageUrl = await _blobStorageService.UploadImageAsync(
+                    file,
+                    containerName
+                );
+
+                // STEP 6: Save the image reference in SQL Server.
+                participant.ProfileImageUrl = imageUrl;
+
+                await _context.SaveChangesAsync();
+
+                // STEP 7: Return the result.
+                return Ok(new
+                {
+                    message = "Profile picture uploaded successfully.",
+                    participant.ParticipantId,
+                    participant.ProfileImageUrl
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         // Request model
         public class UpdateProfileRequest
