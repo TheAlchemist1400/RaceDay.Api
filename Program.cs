@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RaceDay.Api.Data;
 using Azure.Storage.Blobs;
+using RaceDay.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,8 @@ if (string.IsNullOrWhiteSpace(azureConnectionString))
 builder.Services.AddSingleton(
     new BlobServiceClient(azureConnectionString)
 );
+
+builder.Services.AddScoped<BlobStorageService>();
 
 var app = builder.Build();
 
