@@ -30,6 +30,19 @@ builder.Services.AddSession(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var azureConnectionString =
+    builder.Configuration["AzureBlobStorage:ConnectionString"];
+
+if (string.IsNullOrWhiteSpace(azureConnectionString))
+{
+    throw new InvalidOperationException(
+        "Azure Blob Storage connection string is missing.");
+}
+
+builder.Services.AddSingleton(
+    new BlobServiceClient(azureConnectionString)
+);
+
 var app = builder.Build();
 
 
