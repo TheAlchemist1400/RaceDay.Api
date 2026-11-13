@@ -6,6 +6,7 @@ using RaceDay.Api.Data;
 using RaceDay.Api.Models;
 using RaceDay.Api.Services;
 
+
 namespace RaceDay.Api.Controllers
 {
     [Route("api/profile")]
@@ -215,6 +216,62 @@ namespace RaceDay.Api.Controllers
             }
         }
 
+
+        // GET: api/profile/image
+        [HttpGet("image")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> GetProfileImage()
+        {
+            // STEP 1: Verify the API session.
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            string? role = HttpContext.Session.GetString("Role");
+
+            if (userId == null || role == null)
+                return Unauthorized("Please log in first.");
+
+            if (role != "Participant")
+                return StatusCode(403);
+
+            // STEP 2: Retrieve the logged-in Participant.
+            var participant = await _context.Participants.FindAsync(
+                userId.Value
+            );
+
+            if (participant == null)
+                return NotFound("Participant not found.");
+
+            // STEP 3: Check whether a profile image exists.
+            if (string.IsNullOrWhiteSpace(participant.ProfileImageUrl))
+                return NotFound("No profile picture uploaded.");
+
+            // STEP 4: Retrieve the configured container name.
+            string? containerName =
+                _configuration["AzureBlobStorage:ProfileImagesContainer"];
+
+            if (string.IsNullOrWhiteSpace(containerName))
+                return StatusCode(500, "Image container is not configured.");
+
+            try
+            {
+                // STEP 5: Download the image from private Azure storage.
+                var (content, contentType) =
+                    await _blobStorageService.DownloadImageAsync(
+                        participant.ProfileImageUrl,
+                        containerName
+                    );
+
+                // STEP 6: Return image bytes to the authenticated caller.
+                return File(content, contentType);
+            }
+            catch (Azure.RequestFailedException ex) when (ex.Status == 404)
+            {
+                return NotFound("Profile image not found in Azure.");
+            }
+            catch (ArgumentException)
+            {
+                return StatusCode(500, "Stored image reference is invalid.");
+            }
+        }
 
         // Request model
         public class UpdateProfileRequest

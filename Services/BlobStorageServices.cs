@@ -138,5 +138,74 @@ namespace RaceDay.Api.Services
             // STEP 9: Return the blob URL.
             return blobClient.Uri.ToString();
         }
+
+
+        public async Task<(Stream Content, string ContentType)> DownloadImageAsync(
+            string imageUrl,
+            string containerName)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                throw new ArgumentException("Image URL is required.");
+            }
+
+            // STEP 1: Locate the configured Azure container.
+            var containerClient =
+                _blobServiceClient.GetBlobContainerClient(containerName);
+
+            // STEP 2: Parse the stored blob URL.
+            if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var imageUri))
+            {
+                throw new ArgumentException("Invalid image URL.");
+            }
+
+            // STEP 3: Verify that the URL belongs to our container.
+            var containerUri = containerClient.Uri;
+
+            if (!string.Equals(
+                    imageUri.Scheme,
+                    Uri.UriSchemeHttps,
+                    StringComparison.OrdinalIgnoreCase) ||
+                !string.Equals(
+                    imageUri.Host,
+                    containerUri.Host,
+                    StringComparison.OrdinalIgnoreCase) ||
+                imageUri.Port != containerUri.Port)
+            {
+                throw new ArgumentException(
+                    "Image URL does not belong to the configured storage account.");
+            }
+
+            string containerPath = containerUri.AbsolutePath.TrimEnd('/') + "/";
+
+            if (!imageUri.AbsolutePath.StartsWith(
+                    containerPath,
+                    StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "Image URL does not belong to the configured container.");
+            }
+
+            // STEP 4: Extract the blob name.
+            string blobName = Uri.UnescapeDataString(
+                imageUri.AbsolutePath[containerPath.Length..]);
+
+            if (string.IsNullOrWhiteSpace(blobName) ||
+                blobName.Contains('/') ||
+                blobName.Contains('\\'))
+            {
+                throw new ArgumentException("Invalid blob name.");
+            }
+
+            // STEP 5: Retrieve the blob using our authenticated Azure client.
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            var download = await blobClient.DownloadStreamingAsync();
+
+            string contentType =
+                download.Value.Details.ContentType ?? "application/octet-stream";
+
+            return (download.Value.Content, contentType);
+        }
     }
 }
