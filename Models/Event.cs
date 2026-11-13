@@ -16,6 +16,9 @@ namespace RaceDay.Api.Models
         [Range(1, int.MaxValue)]
         public int MaxParticipants { get; set; }
 
+        [StringLength(2048)]
+        public string? BannerImageUrl { get; set; }
+
         // Foreign Keys
         public int OrganizerId { get; set; }
 
@@ -24,8 +27,6 @@ namespace RaceDay.Api.Models
         public EventOrganizer Organizer { get; set; } = null!;
 
         public EventLocation Location { get; set; } = null!;
-
-
 
     }
 }
