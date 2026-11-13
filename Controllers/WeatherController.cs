@@ -215,13 +215,17 @@ namespace RaceDay.Api.Controllers
         public class WeatherRequest
         {
             [Required]
-            [Range(typeof(decimal), "-100.0", "100.0")]
+            [Range(typeof(decimal), "-100.0", "100.0",
+                ParseLimitsInInvariantCulture = true,
+                ConvertValueInInvariantCulture = true)]
             public decimal? Temperature { get; set; }
 
             [Required, StringLength(20)]
             public string? WeatherCondition { get; set; }
 
-            [Range(typeof(decimal), "0", "999.9")]
+            [Range(typeof(decimal), "0", "999.9",
+                ParseLimitsInInvariantCulture = true,
+                ConvertValueInInvariantCulture = true)]
             public decimal? WindSpeed { get; set; }
         }
     }

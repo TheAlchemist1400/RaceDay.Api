@@ -214,10 +214,14 @@ namespace RaceDay.Api.Controllers
             [Required, StringLength(100)]
             public string ActivityName { get; set; } = string.Empty;
 
-            [Range(typeof(decimal), "0.01", "999999.99")]
+            [Range(typeof(decimal), "0.01", "999999.99",
+                ParseLimitsInInvariantCulture = true,
+                ConvertValueInInvariantCulture = true)]
             public decimal DistanceKm { get; set; }
 
-            [Range(typeof(decimal), "0", "999999.99")]
+            [Range(typeof(decimal), "0", "999999.99",
+                ParseLimitsInInvariantCulture = true,
+                ConvertValueInInvariantCulture = true)]
             public decimal EntryFee { get; set; }
 
             public TimeOnly StartTime { get; set; }

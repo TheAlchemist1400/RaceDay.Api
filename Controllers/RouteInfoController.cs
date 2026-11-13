@@ -219,7 +219,9 @@ namespace RaceDay.Api.Controllers
 
         public class RouteRequest
         {
-            [Range(typeof(decimal), "0.01", "999999.99")]
+            [Range(typeof(decimal), "0.01", "999999.99",
+                ParseLimitsInInvariantCulture = true,
+                ConvertValueInInvariantCulture = true)]
             public decimal DistanceKm { get; set; }
 
             [Required, StringLength(100)]

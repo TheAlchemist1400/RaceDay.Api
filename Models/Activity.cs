@@ -14,10 +14,14 @@ namespace RaceDay.Api.Models
         [Required, StringLength(100)]
         public string ActivityName { get; set; } = string.Empty;
 
-        [Required, Range(typeof(decimal), "0.01", "999999.99")]
+        [Required, Range(typeof(decimal), "0.01", "999999.99",
+            ParseLimitsInInvariantCulture = true,
+            ConvertValueInInvariantCulture = true)]
         public decimal DistanceKm { get; set; }
 
-        [Required, Range(typeof(decimal), "0", "999999.99")]
+        [Required, Range(typeof(decimal), "0", "999999.99",
+            ParseLimitsInInvariantCulture = true,
+            ConvertValueInInvariantCulture = true)]
         public decimal EntryFee { get; set; }
 
         public TimeOnly StartTime { get; set; }
