@@ -377,3 +377,5 @@ Project: RaceDay API
 
 Youtube - https://youtu.be/Ll04i5GKFdc
 
+# POE Part 3 - https://github.com/TheAlchemist1400/RaceDayMVC
+
