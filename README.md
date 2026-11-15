@@ -4,6 +4,8 @@
 
 ## Project Overview
 
+# POE Part 3 - https://github.com/TheAlchemist1400/RaceDayMVC
+
 RaceDay is an event management system developed for the PROG6212 Portfolio of Evidence (PoE) Part 2.
 
 The application provides a platform where Event Organisers can create and manage sporting events, while Participants can browse events, register for activities and view their results.
@@ -376,6 +378,4 @@ Assessment: Portfolio of Evidence Part 2
 Project: RaceDay API
 
 Youtube - https://youtu.be/Ll04i5GKFdc
-
-# POE Part 3 - https://github.com/TheAlchemist1400/RaceDayMVC
 
